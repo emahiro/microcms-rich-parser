@@ -1,6 +1,6 @@
 {
 	"name": "microcms-rich-parser",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A library to parse MicroCMS rich editor HTML response into modern blog layout",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -8,7 +8,13 @@
 		"build": "npx tsc",
 		"dev": "tsc --watch"
 	},
-	"keywords": ["microcms", "rich-editor", "html-parser", "blog", "markdown"],
+	"keywords": [
+		"microcms",
+		"rich-editor",
+		"html-parser",
+		"blog",
+		"markdown"
+	],
 	"author": "emahiro",
 	"license": "MIT",
 	"repository": {
@@ -27,5 +33,7 @@
 	"dependencies": {
 		"jsdom": "^23.0.0"
 	},
-	"files": ["dist"]
+	"files": [
+		"dist"
+	]
 }
