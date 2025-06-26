@@ -1,5 +1,26 @@
 import { JSDOM } from 'jsdom';
 
+// Environment detection for SSG compatibility
+const isServerSide = typeof window === 'undefined';
+const isSSGEnvironment = isServerSide && (typeof process !== 'undefined' && process.env);
+
+// Safe Image constructor polyfill for SSG environments
+const SafeImageConstructor = isServerSide 
+  ? class SafeImage {
+      src: string = '';
+      alt: string = '';
+      width: number = 0;
+      height: number = 0;
+      constructor() {}
+    }
+  : (typeof Image !== 'undefined' ? Image : class {
+      src: string = '';
+      alt: string = '';
+      width: number = 0;
+      height: number = 0;
+      constructor() {}
+    });
+
 export interface ParseOptions {
 	darkMode?: boolean;
 	className?: string;
@@ -21,19 +42,35 @@ export class MicroCMSRichParser {
 		let dom: JSDOM;
 		
 		try {
-			// Create JSDOM with minimal, server-safe configuration for NextJS SSG
-			dom = new JSDOM(`<body>${htmlContent}</body>`, {
-				resources: 'usable',
-				runScripts: 'dangerously',
-				pretendToBeVisual: false,
-				virtualConsole: new (require('jsdom').VirtualConsole)()
-			});
+			// Create JSDOM with SSG-optimized configuration
+			const jsdomConfig = isSSGEnvironment 
+				? {
+					// Minimal configuration for SSG environments
+					resources: 'usable' as const,
+					runScripts: 'outside-only' as const,
+					pretendToBeVisual: false,
+					virtualConsole: new (require('jsdom').VirtualConsole)()
+				  }
+				: {
+					// Full configuration for runtime environments
+					resources: 'usable' as const,
+					runScripts: 'dangerously' as const,
+					pretendToBeVisual: false,
+					virtualConsole: new (require('jsdom').VirtualConsole)()
+				  };
+
+			dom = new JSDOM(`<body>${htmlContent}</body>`, jsdomConfig);
 			
 			// Override problematic constructors BEFORE they can cause issues
 			const window = dom.window as any;
 			
-			// Prevent Image constructor issues by creating a safe mock
+			// Use our safe Image constructor polyfill
 			window.Image = function() {
+				if (isSSGEnvironment) {
+					// Return a safe mock for SSG environments
+					return new SafeImageConstructor();
+				}
+				// For runtime environments, create actual DOM img element
 				const element = window.document.createElement('img');
 				return element;
 			};
@@ -42,24 +79,28 @@ export class MicroCMSRichParser {
 			if (window.HTMLImageElement) {
 				const OriginalHTMLImageElement = window.HTMLImageElement;
 				window.HTMLImageElement = function() {
+					if (isSSGEnvironment) {
+						// Return safe mock for SSG
+						return new SafeImageConstructor();
+					}
 					return window.document.createElement('img');
 				};
 				// Preserve prototype for instanceof checks
 				window.HTMLImageElement.prototype = OriginalHTMLImageElement.prototype;
 			}
 			
-			// Override createElement for img elements with additional safety
+			// Enhanced createElement with environment-aware safety
 			const originalCreateElement = window.document.createElement;
 			window.document.createElement = function(tagName: string) {
 				const element = originalCreateElement.call(this, tagName);
 				
-				// Special handling for img elements
-				if (tagName.toLowerCase() === 'img') {
+				// Special handling for img elements in SSG environments
+				if (tagName.toLowerCase() === 'img' && isSSGEnvironment) {
 					// Prevent any Image constructor calls during attribute setting
 					const originalSetAttribute = element.setAttribute;
 					element.setAttribute = function(name: string, value: string) {
 						try {
-							// Skip src attribute processing that might trigger Image constructor
+							// Safe attribute setting for SSG environments
 							if (name === 'src') {
 								// Directly set the attribute without triggering internal handlers
 								Object.defineProperty(this, 'src', {
@@ -72,7 +113,7 @@ export class MicroCMSRichParser {
 							}
 							return originalSetAttribute.call(this, name, value);
 						} catch (e) {
-							// Silently ignore attribute setting errors
+							// Silently ignore attribute setting errors in SSG
 							return;
 						}
 					};
@@ -82,15 +123,24 @@ export class MicroCMSRichParser {
 			};
 			
 		} catch (error) {
-			// Ultimate fallback: Create minimal JSDOM with no features
-			console.warn('JSDOM creation failed, using minimal fallback:', error);
+			// Progressive fallback strategy
+			console.warn('JSDOM creation failed, using fallback strategy:', error);
 			try {
-				dom = new JSDOM(`<body>${htmlContent}</body>`, {});
+				// First fallback: minimal JSDOM configuration
+				dom = new JSDOM(`<body>${htmlContent}</body>`, {
+					resources: 'usable' as const,
+					runScripts: 'outside-only' as const
+				});
 			} catch (fallbackError) {
-				// Last resort: Create JSDOM with string parsing only
 				console.warn('Minimal JSDOM failed, using string-only parsing:', fallbackError);
-				dom = new JSDOM();
-				dom.window.document.body.innerHTML = htmlContent;
+				try {
+					// Second fallback: bare minimum JSDOM
+					dom = new JSDOM(`<body>${htmlContent}</body>`);
+				} catch (finalError) {
+					// Last resort: empty JSDOM with manual content injection
+					dom = new JSDOM();
+					dom.window.document.body.innerHTML = htmlContent;
+				}
 			}
 		}
 		
