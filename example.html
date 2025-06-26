@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroCMS Rich Parser Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .example {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MicroCMS Rich Parser Example</h1>
+        
+        <div class="controls">
+            <div class="toggle">
+                <label>
+                    <input type="checkbox" id="darkModeToggle"> Dark Mode
+                </label>
+            </div>
+        </div>
+
+        <div class="example">
+            <div id="content"></div>
+        </div>
+    </div>
+
+    <script src="dist/index.js"></script>
+    <script>
+        const htmlContent = `<p>Twitter にかくと炎上しそうなネタでもあるので、割と時流のホットなコンテンツは最近 Bluesky に自分の意見やスタンスを書いていることが多い。</p><p>タイトルの通り WFH か RTO かという話はコロナ禍から時間が経って、欧米圏では一定の解答が出つつあり、国内でもある程度企業ごとの方針は固まってきていると思っていたけど、そういった先行してスタンスを取る企業に遅れて最近になってスタンスを変更する企業の話もまたポツポツ聞くようになってきた。</p><p>身近でもそういった話を聞いたので Bluesky にこういった一連の投稿をしてみた。</p><blockquote><p>RTO 云々はだいぶ落ち着いたと思ってたけどまだポツポツ話は聞くな。自分はもうRTOになって久しいし、出社も悪くないと思ってるし、なにより出社にこだわらない方がキャリアの選択肢広がってポジティブな側面もあるので、世間の RTOの風潮に対して思うところはないんだけど、まぁRTO かかった時に現場レベルであれこれ画策するのはまぁ無駄かなとは思う。RTO は会社のスタンスの表明であり、選択できるのは乗るか反るかの二択。 また、現場と経営では話してるプロトコルやそもそも見てるところが異なるので現場の意見を組むみたいなことはまずない。 なので納得いかなければ辞める他ない、という類のものなんだよね。</p></blockquote><p>[emahiro (@<a href="http://emahiro.bsky.social">emahiro.bsky.social</a>)](<a href="https://bsky.app/profile/emahiro.bsky.social/post/3l4bungcwtr2e">https://bsky.app/profile/emahiro.bsky.social/post/3l4bungcwtr2e</a>)</p><p>僕自身は現職が WFH -&gt; RTO に移行して１年以上経過した上で、出社も悪くはないなと思っている。やはりオフラインの持つ圧倒的なレイテンシの低さはオンラインでは代替できない。この「生身」感こそがプロダクト開発にいい影響があるということを否定することは今の自分にはできない。</p><hr><p>ちょうどタイムリーに Amazon が RTO を週5にするというニュースが界隈をだいぶ賑やかにさせた。</p><p>[Update from Amazon CEO Andy Jassy on return-to-office plans and manager team ratio](<a href="https://www.aboutamazon.com/news/company-news/ceo-andy-jassy-latest-update-on-amazon-return-to-office-manager-team-ratio">https://www.aboutamazon.com/news/company-news/ceo-andy-jassy-latest-update-on-amazon-return-to-office-manager-team-ratio</a>)</p><p>これについてはこんなコメントをした。</p><blockquote><p>文化の維持という側面はあるにせよ、コロナ禍の雇い過ぎからのゆり戻しをまだ続けてる、というふうに見えないこともない。</p></blockquote><p>[emahiro (@<a href="http://emahiro.bsky.social">emahiro.bsky.social</a>)](<a href="https://bsky.app/profile/emahiro.bsky.social/post/3l4ehumw2xv2a">https://bsky.app/profile/emahiro.bsky.social/post/3l4ehumw2xv2a</a>)</p><hr><p>話は少し逸れてしまったが、１個人として見ると WFH ほど良いものはないが、それは個人最適の話であって全体最適で見るとまた話は違ってくるのだろうと思う。</p><p>個人最適が全体最適にならないのは常なので、もし全体最適的な意思決定におて個人最適が脅かされ、それが嫌だというのなら、その環境を変えようとするより、自分自身の居場所を変えたほうがいいように思う。</p><p>特にプライベートにおける全体最適に対する負荷の閾値は個々人、家庭ごとに異なってくる。我が家の場合はたまたまちょっとだけ高いだけだと思っているし、プライベートを犠牲にしてまで仕事したいか、という一人ひとりの人生観にも関わってくるところでもあるので、自分を大切に生きるために最善を選択するべき。</p><p>それがたまたま「反る」ことになってもそれは仕方のない話だと割り切る方が良いように思う。</p><p>WFH/RTO の二元論については自分はそういう考えを持っている。</p><p></p>`;
+
+        function updateContent() {
+            const darkMode = document.getElementById('darkModeToggle').checked;
+            
+            // Note: This would work with the built library
+            // const styledHTML = parseMicroCMSHTML(htmlContent, { darkMode });
+            // document.getElementById('content').innerHTML = styledHTML;
+            
+            // For demo purposes, show the raw HTML with a note
+            document.getElementById('content').innerHTML = \`
+                <div style="padding: 20px; background: \${darkMode ? '#1a1a1a' : '#fff'}; color: \${darkMode ? '#e4e4e7' : '#333'};">
+                    <p><strong>Demo Note:</strong> This example shows the raw HTML. In actual usage, the library would transform this into a beautifully styled layout.</p>
+                    <hr>
+                    \${htmlContent}
+                </div>
+            \`;
+        }
+
+        document.getElementById('darkModeToggle').addEventListener('change', updateContent);
+        updateContent();
+    </script>
+</body>
+</html>

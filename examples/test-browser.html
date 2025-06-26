@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroCMS Rich Parser - ブラウザテスト</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .example {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .example h2 {
+            margin: 0;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 18px;
+            color: #495057;
+        }
+        button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .raw-html {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 MicroCMS Rich Parser - ブラウザテスト</h1>
+        
+        <div class="controls">
+            <div class="toggle">
+                <label>
+                    <input type="checkbox" id="darkModeToggle"> 🌙 ダークモード
+                </label>
+            </div>
+            <div class="toggle">
+                <label>
+                    <input type="text" id="customClassName" placeholder="カスタムクラス名" value="microcms-rich-content">
+                </label>
+            </div>
+            <button onclick="updateContent()">🔄 再生成</button>
+            <button onclick="toggleRawHTML()">📄 生HTML表示</button>
+        </div>
+
+        <div class="example">
+            <h2>📝 パース結果</h2>
+            <div id="content"></div>
+        </div>
+
+        <div class="example" id="rawHTMLContainer" style="display: none;">
+            <h2>🔍 生成されたHTML</h2>
+            <div class="raw-html" id="rawHTML"></div>
+        </div>
+    </div>
+
+    <!-- ライブラリを読み込み -->
+    <script src="../dist/index.js"></script>
+    <script>
+        // MicroCMSサンプルデータ
+        const sampleHTML = `        // MicroCMSサンプルデータ
+        const sampleHTML = `
+<p>これは最初の段落です。Here is some English text.</p>
+<p>これは2番目の段落で、<a href="https://example.com" target="_blank" rel="noopener noreferrer">外部サイトへのリンク</a>が含まれています。</p>
+<blockquote><p>これは引用ブロックです。引用はインデントされ、スタイルが適用されます。</p></blockquote>
+<p>段落には、<strong>太字</strong>、<em>イタリック</em>、<u>下線</u>などの基本的な書式設定を含めることができます。</p>
+<hr>
+<p>これは水平線の下にある最後の段落です。</p>
+`;`;
+
+        // ライブラリが利用可能かチェック
+        if (typeof module !== 'undefined' && module.exports) {
+            // Node.js環境
+            var { parseMicroCMSHTML, MicroCMSRichParser } = require('../dist/index.js');
+        } else if (typeof window !== 'undefined' && window.parseMicroCMSHTML) {
+            // ブラウザ環境（グローバル変数として利用可能な場合）
+            var parseMicroCMSHTML = window.parseMicroCMSHTML;
+            var MicroCMSRichParser = window.MicroCMSRichParser;
+        } else {
+            // ライブラリが利用できない場合のフォールバック
+            console.warn('MicroCMS Rich Parser library not found. Using fallback.');
+            var parseMicroCMSHTML = function(html, options) {
+                return '<div style="padding: 20px; border: 2px dashed #ccc; background: #f9f9f9;"><p><strong>⚠️ ライブラリが読み込まれていません</strong></p><p>dist/index.js を確認してください。</p><div style="max-height: 200px; overflow-y: auto; background: white; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">' + html.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div></div>';
+            };
+        }
+
+        function updateContent() {
+            try {
+                const darkMode = document.getElementById('darkModeToggle').checked;
+                const className = document.getElementById('customClassName').value || 'microcms-rich-content';
+                
+                const styledHTML = parseMicroCMSHTML(sampleHTML, { 
+                    darkMode: darkMode,
+                    className: className
+                });
+                
+                document.getElementById('content').innerHTML = styledHTML;
+                document.getElementById('rawHTML').textContent = styledHTML;
+                
+                console.log('✅ Content updated successfully');
+            } catch (error) {
+                console.error('❌ Error updating content:', error);
+                document.getElementById('content').innerHTML = `
+                    <div style="padding: 20px; border: 2px solid #ff6b6b; background: #ffe0e0; border-radius: 8px;">
+                        <h3>🚨 エラーが発生しました</h3>
+                        <p><strong>エラー内容:</strong> ${error.message}</p>
+                        <p><strong>対処方法:</strong></p>
+                        <ul>
+                            <li>npm run build を実行してライブラリをビルドしてください</li>
+                            <li>dist/index.js ファイルが存在することを確認してください</li>
+                            <li>ブラウザのコンソールでエラーを確認してください</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleRawHTML() {
+            const container = document.getElementById('rawHTMLContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // イベントリスナーの設定
+        document.getElementById('darkModeToggle').addEventListener('change', updateContent);
+        document.getElementById('customClassName').addEventListener('input', updateContent);
+
+        // 初期化
+        updateContent();
+
+        // デバッグ用の情報をコンソールに出力
+        console.log('🚀 MicroCMS Rich Parser Test Page Loaded');
+        console.log('📦 Library available:', typeof parseMicroCMSHTML !== 'undefined');
+        console.log('🎯 Sample HTML length:', sampleHTML.length);
+    </script>
+</body>
+</html>

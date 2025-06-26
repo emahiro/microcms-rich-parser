@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroCMS Rich Parser - ローカルテスト</title>
+</head>
+<body>
+    <h1>ライトモード</h1>
+    <div class="microcms-rich-content "><p class="rich-paragraph">これは最初の段落です。Here is some English text.</p><p class="rich-paragraph">これは2番目の段落で、<a href="https://example.com" target="_blank" rel="noopener noreferrer">外部サイトへのリンク</a>が含まれています。</p><blockquote class="rich-blockquote"><p>これは引用ブロックです。引用はインデントされ、スタイルが適用されます。</p></blockquote><p class="rich-paragraph">段落には、<strong>太字</strong>、<em>イタリック</em>、<u>下線</u>などの基本的な書式設定を含めることができます。</p><hr class="rich-divider"><p class="rich-paragraph">これは水平線の下にある最後の段落です。</p><style>
+			.microcms-rich-content {
+				max-width: 800px;
+				margin: 0 auto;
+				line-height: 1.7;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+				color: #333;
+				background-color: #fff;
+				padding: 2rem;
+			}
+
+			.microcms-rich-content.dark-mode {
+				color: #e4e4e7;
+				background-color: #1a1a1a;
+			}
+
+			.rich-paragraph {
+				margin-bottom: 1.5rem;
+				font-size: 1.1rem;
+				color: inherit;
+			}
+
+			.rich-blockquote {
+				margin: 2rem 0;
+				padding: 1.5rem 2rem;
+				border-left: 4px solid #3b82f6;
+				background-color: #f8fafc;
+				border-radius: 0 8px 8px 0;
+				font-style: italic;
+				position: relative;
+			}
+
+			.dark-mode .rich-blockquote {
+				background-color: #2d2d30;
+				border-left-color: #60a5fa;
+			}
+
+			.rich-blockquote::before {
+				content: '"';
+				font-size: 4rem;
+				color: #3b82f6;
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				font-family: serif;
+			}
+
+			.dark-mode .rich-blockquote::before {
+				color: #60a5fa;
+			}
+
+			.rich-divider {
+				margin: 3rem 0;
+				border: none;
+				height: 2px;
+				background: linear-gradient(to right, transparent, #d1d5db, transparent);
+			}
+
+			.dark-mode .rich-divider {
+				background: linear-gradient(to right, transparent, #4b5563, transparent);
+			}
+
+			.rich-link {
+				color: #3b82f6;
+				text-decoration: underline;
+				text-decoration-thickness: 2px;
+				text-underline-offset: 2px;
+				transition: all 0.2s ease;
+			}
+
+			.rich-link:hover {
+				color: #1d4ed8;
+				text-decoration-thickness: 3px;
+			}
+
+			.dark-mode .rich-link {
+				color: #60a5fa;
+			}
+
+			.dark-mode .rich-link:hover {
+				color: #93c5fd;
+			}
+
+			@media (max-width: 768px) {
+				.microcms-rich-content {
+					padding: 1rem;
+					font-size: 0.95rem;
+				}
+
+				.rich-paragraph {
+					font-size: 1rem;
+				}
+
+				.rich-blockquote {
+					padding: 1rem;
+					margin: 1.5rem 0;
+				}
+			}
+		</style></div>
+    
+    <h1>ダークモード</h1>
+    <div class="microcms-rich-content dark-mode"><p class="rich-paragraph">これは最初の段落です。Here is some English text.</p><p class="rich-paragraph">これは2番目の段落で、<a href="https://example.com" target="_blank" rel="noopener noreferrer">外部サイトへのリンク</a>が含まれています。</p><blockquote class="rich-blockquote"><p>これは引用ブロックです。引用はインデントされ、スタイルが適用されます。</p></blockquote><p class="rich-paragraph">段落には、<strong>太字</strong>、<em>イタリック</em>、<u>下線</u>などの基本的な書式設定を含めることができます。</p><hr class="rich-divider"><p class="rich-paragraph">これは水平線の下にある最後の段落です。</p><style>
+			.microcms-rich-content {
+				max-width: 800px;
+				margin: 0 auto;
+				line-height: 1.7;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+				color: #333;
+				background-color: #fff;
+				padding: 2rem;
+			}
+
+			.microcms-rich-content.dark-mode {
+				color: #e4e4e7;
+				background-color: #1a1a1a;
+			}
+
+			.rich-paragraph {
+				margin-bottom: 1.5rem;
+				font-size: 1.1rem;
+				color: inherit;
+			}
+
+			.rich-blockquote {
+				margin: 2rem 0;
+				padding: 1.5rem 2rem;
+				border-left: 4px solid #3b82f6;
+				background-color: #f8fafc;
+				border-radius: 0 8px 8px 0;
+				font-style: italic;
+				position: relative;
+			}
+
+			.dark-mode .rich-blockquote {
+				background-color: #2d2d30;
+				border-left-color: #60a5fa;
+			}
+
+			.rich-blockquote::before {
+				content: '"';
+				font-size: 4rem;
+				color: #3b82f6;
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				font-family: serif;
+			}
+
+			.dark-mode .rich-blockquote::before {
+				color: #60a5fa;
+			}
+
+			.rich-divider {
+				margin: 3rem 0;
+				border: none;
+				height: 2px;
+				background: linear-gradient(to right, transparent, #d1d5db, transparent);
+			}
+
+			.dark-mode .rich-divider {
+				background: linear-gradient(to right, transparent, #4b5563, transparent);
+			}
+
+			.rich-link {
+				color: #3b82f6;
+				text-decoration: underline;
+				text-decoration-thickness: 2px;
+				text-underline-offset: 2px;
+				transition: all 0.2s ease;
+			}
+
+			.rich-link:hover {
+				color: #1d4ed8;
+				text-decoration-thickness: 3px;
+			}
+
+			.dark-mode .rich-link {
+				color: #60a5fa;
+			}
+
+			.dark-mode .rich-link:hover {
+				color: #93c5fd;
+			}
+
+			@media (max-width: 768px) {
+				.microcms-rich-content {
+					padding: 1rem;
+					font-size: 0.95rem;
+				}
+
+				.rich-paragraph {
+					font-size: 1rem;
+				}
+
+				.rich-blockquote {
+					padding: 1rem;
+					margin: 1.5rem 0;
+				}
+			}
+		</style></div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+	"name": "microcms-rich-parser-examples",
+	"version": "1.0.0",
+	"description": "Local testing examples for microcms-rich-parser",
+	"scripts": {
+		"test": "node test-node.js",
+		"serve": "python3 -m http.server 8080 || python -m SimpleHTTPServer 8080"
+	},
+	"dependencies": {}
+}
