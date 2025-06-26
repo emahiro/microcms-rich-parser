@@ -1,6 +1,6 @@
 {
   "name": "microcms-rich-parser",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A library to parse MicroCMS rich editor HTML response into modern blog layout",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,8 +1,16 @@
 import { JSDOM } from 'jsdom';
 
-// Environment detection for SSG compatibility
+// Enhanced environment detection for SSG compatibility
 const isServerSide = typeof window === 'undefined';
-const isSSGEnvironment = isServerSide && (typeof process !== 'undefined' && process.env);
+const isNextJSSSG = isServerSide && (
+  typeof process !== 'undefined' && 
+  process.env && (
+    process.env.NEXT_PHASE === 'phase-export' ||
+    process.env.NEXT_IS_EXPORT === 'true' ||
+    (process.env.NODE_ENV === 'production' && process.env.NEXT_DEPLOYMENT_ID)
+  )
+);
+const isSSGEnvironment = isServerSide || isNextJSSSG;
 
 // Safe Image constructor polyfill for SSG environments
 const SafeImageConstructor = isServerSide 
@@ -42,14 +50,20 @@ export class MicroCMSRichParser {
 		let dom: JSDOM;
 		
 		try {
-			// Create JSDOM with SSG-optimized configuration
+			// Create JSDOM with ultra-safe SSG configuration
 			const jsdomConfig = isSSGEnvironment 
 				? {
-					// Minimal configuration for SSG environments
+					// Ultra-minimal configuration for SSG environments
 					resources: 'usable' as const,
 					runScripts: 'outside-only' as const,
 					pretendToBeVisual: false,
-					virtualConsole: new (require('jsdom').VirtualConsole)()
+					virtualConsole: new (require('jsdom').VirtualConsole)(),
+					// Disable features that might trigger Image constructor
+					features: {
+						FetchExternalResources: false,
+						ProcessExternalResources: false,
+						SkipExternalResources: true
+					}
 				  }
 				: {
 					// Full configuration for runtime environments
@@ -61,66 +75,85 @@ export class MicroCMSRichParser {
 
 			dom = new JSDOM(`<body>${htmlContent}</body>`, jsdomConfig);
 			
-			// Override problematic constructors BEFORE they can cause issues
+			// Ultra-aggressive constructor overrides BEFORE any operations
 			const window = dom.window as any;
+			const document = window.document;
 			
-			// Use our safe Image constructor polyfill
-			window.Image = function() {
-				if (isSSGEnvironment) {
-					// Return a safe mock for SSG environments
+			// Completely disable Image constructor in SSG environments
+			if (isSSGEnvironment) {
+				// Override Image constructor completely
+				window.Image = function() {
 					return new SafeImageConstructor();
-				}
-				// For runtime environments, create actual DOM img element
-				const element = window.document.createElement('img');
-				return element;
-			};
-			
-			// Override HTMLImageElement constructor to prevent build issues
-			if (window.HTMLImageElement) {
-				const OriginalHTMLImageElement = window.HTMLImageElement;
-				window.HTMLImageElement = function() {
-					if (isSSGEnvironment) {
-						// Return safe mock for SSG
-						return new SafeImageConstructor();
-					}
-					return window.document.createElement('img');
 				};
-				// Preserve prototype for instanceof checks
-				window.HTMLImageElement.prototype = OriginalHTMLImageElement.prototype;
-			}
-			
-			// Enhanced createElement with environment-aware safety
-			const originalCreateElement = window.document.createElement;
-			window.document.createElement = function(tagName: string) {
-				const element = originalCreateElement.call(this, tagName);
 				
-				// Special handling for img elements in SSG environments
-				if (tagName.toLowerCase() === 'img' && isSSGEnvironment) {
-					// Prevent any Image constructor calls during attribute setting
-					const originalSetAttribute = element.setAttribute;
-					element.setAttribute = function(name: string, value: string) {
+				// Override HTMLImageElement constructor
+				window.HTMLImageElement = function() {
+					return new SafeImageConstructor();
+				};
+				
+				// Prevent any internal JSDOM Image constructor calls
+				const ElementPrototype = window.Element.prototype;
+				const originalSetAttribute = ElementPrototype.setAttribute;
+				ElementPrototype.setAttribute = function(this: Element, name: string, value: string) {
+					// For img elements in SSG, handle src attribute specially
+					if (this.tagName && this.tagName.toLowerCase() === 'img' && name === 'src') {
 						try {
-							// Safe attribute setting for SSG environments
-							if (name === 'src') {
-								// Directly set the attribute without triggering internal handlers
-								Object.defineProperty(this, 'src', {
-									value: value,
-									writable: true,
-									enumerable: true,
-									configurable: true
-								});
-								return;
-							}
-							return originalSetAttribute.call(this, name, value);
+							// Direct property assignment to avoid constructor calls
+							(this as any)[name] = value;
+							this.attributes.setNamedItem(document.createAttribute(name));
+							this.attributes.getNamedItem(name)!.nodeValue = value;
+							return;
 						} catch (e) {
-							// Silently ignore attribute setting errors in SSG
+							// Silently fail in SSG
 							return;
 						}
-					};
-				}
-				
-				return element;
-			};
+					}
+					return originalSetAttribute.call(this, name, value);
+				};
+			} else {
+				// Runtime environment - use normal Image constructor
+				window.Image = function() {
+					return window.document.createElement('img');
+				};
+			}
+			
+			// Ultra-safe createElement for SSG environments
+			if (isSSGEnvironment) {
+				const originalCreateElement = window.document.createElement;
+				window.document.createElement = function(tagName: string) {
+					const element = originalCreateElement.call(this, tagName);
+					
+					// For img elements, completely override attribute handling
+					if (tagName.toLowerCase() === 'img') {
+						// Store original methods
+						const originalSetAttribute = element.setAttribute;
+						const originalGetAttribute = element.getAttribute;
+						
+						// Create a safe attribute store
+						const safeAttributes: { [key: string]: string } = {};
+						
+						// Override setAttribute to use safe storage
+						element.setAttribute = function(name: string, value: string) {
+							safeAttributes[name] = value;
+							// Set as property to maintain compatibility
+							(this as any)[name] = value;
+							// Try to set as actual attribute, but don't fail
+							try {
+								originalSetAttribute.call(this, name, value);
+							} catch (e) {
+								// Silently ignore in SSG
+							}
+						};
+						
+						// Override getAttribute to use safe storage
+						element.getAttribute = function(name: string) {
+							return safeAttributes[name] || originalGetAttribute.call(this, name);
+						};
+					}
+					
+					return element;
+				};
+			}
 			
 		} catch (error) {
 			// Progressive fallback strategy
@@ -228,32 +261,50 @@ export class MicroCMSRichParser {
 		
 		img.className = 'rich-image';
 		
-		// Safely copy attributes without triggering Image constructor
-		const srcAttr = element.getAttribute('src');
-		const altAttr = element.getAttribute('alt');
-		const widthAttr = element.getAttribute('width');
-		const heightAttr = element.getAttribute('height');
-		const titleAttr = element.getAttribute('title');
+		// Ultra-safe attribute copying for SSG environments
+		const attributes = ['src', 'alt', 'width', 'height', 'title'];
 		
-		// Set attributes using safe methods
-		if (srcAttr) {
+		attributes.forEach(attrName => {
+			const attrValue = element.getAttribute(attrName);
+			if (attrValue !== null) {
+				try {
+					img.setAttribute(attrName, attrValue);
+				} catch (e) {
+					// Multiple fallback strategies for SSG
+					try {
+						// Fallback 1: Direct property assignment
+						(img as any)[attrName] = attrValue;
+					} catch (e2) {
+						// Fallback 2: Manual attribute creation
+						if (isSSGEnvironment && document.createAttribute) {
+							try {
+								const attr = document.createAttribute(attrName);
+								attr.value = attrValue;
+								img.attributes.setNamedItem(attr);
+							} catch (e3) {
+								// Silently ignore in SSG environments
+							}
+						}
+					}
+				}
+			}
+		});
+		
+		// Ensure alt attribute exists
+		if (!element.getAttribute('alt')) {
 			try {
-				img.setAttribute('src', srcAttr);
+				img.setAttribute('alt', '');
 			} catch (e) {
-				// Fallback: direct property assignment
-				(img as any).src = srcAttr;
+				(img as any).alt = '';
 			}
 		}
 		
-		if (altAttr) img.setAttribute('alt', altAttr);
-		else img.setAttribute('alt', '');
-		
-		img.setAttribute('loading', 'lazy');
-		
-		// Copy dimensional attributes if they exist
-		if (widthAttr) img.setAttribute('width', widthAttr);
-		if (heightAttr) img.setAttribute('height', heightAttr);
-		if (titleAttr) img.setAttribute('title', titleAttr);
+		// Add lazy loading
+		try {
+			img.setAttribute('loading', 'lazy');
+		} catch (e) {
+			(img as any).loading = 'lazy';
+		}
 		
 		return img;
 	}
