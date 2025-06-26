@@ -41,3 +41,7 @@ Thumbs.db
 # Misc
 .npm
 /coverage
+
+# Claude Code configuration
+CLAUDE.md
+GEMINI.md
