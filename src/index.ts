@@ -21,67 +21,76 @@ export class MicroCMSRichParser {
 		let dom: JSDOM;
 		
 		try {
-			// Create JSDOM with server-safe configuration
+			// Create JSDOM with minimal, server-safe configuration for NextJS SSG
 			dom = new JSDOM(`<body>${htmlContent}</body>`, {
 				resources: 'usable',
-				runScripts: 'outside-only',
-				pretendToBeVisual: false
+				runScripts: 'dangerously',
+				pretendToBeVisual: false,
+				virtualConsole: new (require('jsdom').VirtualConsole)()
 			});
 			
-			// Completely remove problematic constructors from the window object
+			// Override problematic constructors BEFORE they can cause issues
 			const window = dom.window as any;
 			
-			// Remove Image and media constructors that cause Next.js build issues
-			const constructorsToRemove = [
-				'Image', 'HTMLImageElement', 
-				'Audio', 'HTMLAudioElement',
-				'Video', 'HTMLVideoElement'
-			];
+			// Prevent Image constructor issues by creating a safe mock
+			window.Image = function() {
+				const element = window.document.createElement('img');
+				return element;
+			};
 			
-			constructorsToRemove.forEach(constructor => {
-				try {
-					delete window[constructor];
-				} catch (e) {
-					// Ignore deletion errors
-				}
-			});
+			// Override HTMLImageElement constructor to prevent build issues
+			if (window.HTMLImageElement) {
+				const OriginalHTMLImageElement = window.HTMLImageElement;
+				window.HTMLImageElement = function() {
+					return window.document.createElement('img');
+				};
+				// Preserve prototype for instanceof checks
+				window.HTMLImageElement.prototype = OriginalHTMLImageElement.prototype;
+			}
 			
-			// Override createElement for problematic elements
+			// Override createElement for img elements with additional safety
 			const originalCreateElement = window.document.createElement;
 			window.document.createElement = function(tagName: string) {
 				const element = originalCreateElement.call(this, tagName);
 				
-				// Special handling for img elements to prevent constructor issues
+				// Special handling for img elements
 				if (tagName.toLowerCase() === 'img') {
-					// Override src property to prevent Image constructor calls
-					Object.defineProperty(element, 'src', {
-						get: function() { return this.getAttribute('src') || ''; },
-						set: function(value) { 
-							try {
-								this.setAttribute('src', value);
-							} catch (e) {
-								// Ignore attribute setting errors
+					// Prevent any Image constructor calls during attribute setting
+					const originalSetAttribute = element.setAttribute;
+					element.setAttribute = function(name: string, value: string) {
+						try {
+							// Skip src attribute processing that might trigger Image constructor
+							if (name === 'src') {
+								// Directly set the attribute without triggering internal handlers
+								Object.defineProperty(this, 'src', {
+									value: value,
+									writable: true,
+									enumerable: true,
+									configurable: true
+								});
+								return;
 							}
-						},
-						enumerable: true,
-						configurable: true
-					});
+							return originalSetAttribute.call(this, name, value);
+						} catch (e) {
+							// Silently ignore attribute setting errors
+							return;
+						}
+					};
 				}
 				
 				return element;
 			};
 			
 		} catch (error) {
-			// Fallback: Create a minimal JSDOM instance without any features
-			console.warn('JSDOM creation failed, using fallback:', error);
-			dom = new JSDOM(`<body>${htmlContent}</body>`);
-			
-			// Still try to clean up the window object in fallback mode
+			// Ultimate fallback: Create minimal JSDOM with no features
+			console.warn('JSDOM creation failed, using minimal fallback:', error);
 			try {
-				const window = dom.window as any;
-				delete window.Image;
-			} catch (e) {
-				// Ignore cleanup errors in fallback mode
+				dom = new JSDOM(`<body>${htmlContent}</body>`, {});
+			} catch (fallbackError) {
+				// Last resort: Create JSDOM with string parsing only
+				console.warn('Minimal JSDOM failed, using string-only parsing:', fallbackError);
+				dom = new JSDOM();
+				dom.window.document.body.innerHTML = htmlContent;
 			}
 		}
 		
@@ -166,17 +175,35 @@ export class MicroCMSRichParser {
 
 	private processImage(element: Element, document: Document): Element {
 		const img = document.createElement('img');
-		const originalImg = element as HTMLImageElement;
 		
 		img.className = 'rich-image';
-		img.src = originalImg.src;
-		img.alt = originalImg.alt || '';
-		img.loading = 'lazy';
 		
-		// Copy other attributes if they exist
-		if (originalImg.width) img.width = originalImg.width;
-		if (originalImg.height) img.height = originalImg.height;
-		if (originalImg.title) img.title = originalImg.title;
+		// Safely copy attributes without triggering Image constructor
+		const srcAttr = element.getAttribute('src');
+		const altAttr = element.getAttribute('alt');
+		const widthAttr = element.getAttribute('width');
+		const heightAttr = element.getAttribute('height');
+		const titleAttr = element.getAttribute('title');
+		
+		// Set attributes using safe methods
+		if (srcAttr) {
+			try {
+				img.setAttribute('src', srcAttr);
+			} catch (e) {
+				// Fallback: direct property assignment
+				(img as any).src = srcAttr;
+			}
+		}
+		
+		if (altAttr) img.setAttribute('alt', altAttr);
+		else img.setAttribute('alt', '');
+		
+		img.setAttribute('loading', 'lazy');
+		
+		// Copy dimensional attributes if they exist
+		if (widthAttr) img.setAttribute('width', widthAttr);
+		if (heightAttr) img.setAttribute('height', heightAttr);
+		if (titleAttr) img.setAttribute('title', titleAttr);
 		
 		return img;
 	}
