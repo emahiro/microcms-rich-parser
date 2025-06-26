@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 export interface ParseOptions {
 	darkMode?: boolean;
 	className?: string;
+	customCSS?: string;
 }
 
 export class MicroCMSRichParser {
@@ -17,7 +18,73 @@ export class MicroCMSRichParser {
 	}
 
 	parse(htmlContent: string): string {
-		const dom = new JSDOM(htmlContent);
+		let dom: JSDOM;
+		
+		try {
+			// Create JSDOM with server-safe configuration
+			dom = new JSDOM(`<body>${htmlContent}</body>`, {
+				resources: 'usable',
+				runScripts: 'outside-only',
+				pretendToBeVisual: false
+			});
+			
+			// Completely remove problematic constructors from the window object
+			const window = dom.window as any;
+			
+			// Remove Image and media constructors that cause Next.js build issues
+			const constructorsToRemove = [
+				'Image', 'HTMLImageElement', 
+				'Audio', 'HTMLAudioElement',
+				'Video', 'HTMLVideoElement'
+			];
+			
+			constructorsToRemove.forEach(constructor => {
+				try {
+					delete window[constructor];
+				} catch (e) {
+					// Ignore deletion errors
+				}
+			});
+			
+			// Override createElement for problematic elements
+			const originalCreateElement = window.document.createElement;
+			window.document.createElement = function(tagName: string) {
+				const element = originalCreateElement.call(this, tagName);
+				
+				// Special handling for img elements to prevent constructor issues
+				if (tagName.toLowerCase() === 'img') {
+					// Override src property to prevent Image constructor calls
+					Object.defineProperty(element, 'src', {
+						get: function() { return this.getAttribute('src') || ''; },
+						set: function(value) { 
+							try {
+								this.setAttribute('src', value);
+							} catch (e) {
+								// Ignore attribute setting errors
+							}
+						},
+						enumerable: true,
+						configurable: true
+					});
+				}
+				
+				return element;
+			};
+			
+		} catch (error) {
+			// Fallback: Create a minimal JSDOM instance without any features
+			console.warn('JSDOM creation failed, using fallback:', error);
+			dom = new JSDOM(`<body>${htmlContent}</body>`);
+			
+			// Still try to clean up the window object in fallback mode
+			try {
+				const window = dom.window as any;
+				delete window.Image;
+			} catch (e) {
+				// Ignore cleanup errors in fallback mode
+			}
+		}
+		
 		const document = dom.window.document;
 		const body = document.body;
 
@@ -36,6 +103,13 @@ export class MicroCMSRichParser {
 		style.textContent = this.generateCSS();
 		wrapper.appendChild(style);
 
+		// Add custom CSS if provided
+		if (this.options.customCSS) {
+			const customStyle = document.createElement('style');
+			customStyle.textContent = this.options.customCSS;
+			wrapper.appendChild(customStyle);
+		}
+
 		return wrapper.outerHTML;
 	}
 
@@ -51,6 +125,10 @@ export class MicroCMSRichParser {
 				return this.processHorizontalRule(element, document);
 			case 'a':
 				return this.processLink(element, document);
+			case 'img':
+				return this.processImage(element, document);
+			case 'figure':
+				return this.processFigure(element, document);
 			default:
 				return element.cloneNode(true) as Element;
 		}
@@ -84,6 +162,42 @@ export class MicroCMSRichParser {
 		a.target = '_blank';
 		a.rel = 'noopener noreferrer';
 		return a;
+	}
+
+	private processImage(element: Element, document: Document): Element {
+		const img = document.createElement('img');
+		const originalImg = element as HTMLImageElement;
+		
+		img.className = 'rich-image';
+		img.src = originalImg.src;
+		img.alt = originalImg.alt || '';
+		img.loading = 'lazy';
+		
+		// Copy other attributes if they exist
+		if (originalImg.width) img.width = originalImg.width;
+		if (originalImg.height) img.height = originalImg.height;
+		if (originalImg.title) img.title = originalImg.title;
+		
+		return img;
+	}
+
+	private processFigure(element: Element, document: Document): Element {
+		const figure = document.createElement('figure');
+		figure.className = 'rich-figure';
+		
+		// Process child elements
+		Array.from(element.children).forEach(child => {
+			const processedChild = this.processElement(child, document);
+			figure.appendChild(processedChild);
+		});
+		
+		// Add figcaption styling if present
+		const figcaption = figure.querySelector('figcaption');
+		if (figcaption) {
+			figcaption.className = 'rich-figcaption';
+		}
+		
+		return figure;
 	}
 
 	private generateCSS(): string {
@@ -168,6 +282,46 @@ export class MicroCMSRichParser {
 
 			.dark-mode .rich-link:hover {
 				color: #93c5fd;
+			}
+
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
 			}
 
 			@media (max-width: 768px) {
