@@ -90,6 +90,46 @@
 				color: #93c5fd;
 			}
 
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
+			}
+
 			@media (max-width: 768px) {
 				.microcms-rich-content {
 					padding: 1rem;
@@ -189,6 +229,483 @@
 
 			.dark-mode .rich-link:hover {
 				color: #93c5fd;
+			}
+
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
+			}
+
+			@media (max-width: 768px) {
+				.microcms-rich-content {
+					padding: 1rem;
+					font-size: 0.95rem;
+				}
+
+				.rich-paragraph {
+					font-size: 1rem;
+				}
+
+				.rich-blockquote {
+					padding: 1rem;
+					margin: 1.5rem 0;
+				}
+			}
+		</style></div>
+    
+    <h1>カスタムCSS</h1>
+    <div class="microcms-rich-content "><p class="rich-paragraph">これは最初の段落です。Here is some English text.</p><p class="rich-paragraph">これは2番目の段落で、<a href="https://example.com" target="_blank" rel="noopener noreferrer">外部サイトへのリンク</a>が含まれています。</p><blockquote class="rich-blockquote"><p>これは引用ブロックです。引用はインデントされ、スタイルが適用されます。</p></blockquote><p class="rich-paragraph">段落には、<strong>太字</strong>、<em>イタリック</em>、<u>下線</u>などの基本的な書式設定を含めることができます。</p><hr class="rich-divider"><p class="rich-paragraph">これは水平線の下にある最後の段落です。</p><style>
+			.microcms-rich-content {
+				max-width: 800px;
+				margin: 0 auto;
+				line-height: 1.7;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+				color: #333;
+				background-color: #fff;
+				padding: 2rem;
+			}
+
+			.microcms-rich-content.dark-mode {
+				color: #e4e4e7;
+				background-color: #1a1a1a;
+			}
+
+			.rich-paragraph {
+				margin-bottom: 1.5rem;
+				font-size: 1.1rem;
+				color: inherit;
+			}
+
+			.rich-blockquote {
+				margin: 2rem 0;
+				padding: 1.5rem 2rem;
+				border-left: 4px solid #3b82f6;
+				background-color: #f8fafc;
+				border-radius: 0 8px 8px 0;
+				font-style: italic;
+				position: relative;
+			}
+
+			.dark-mode .rich-blockquote {
+				background-color: #2d2d30;
+				border-left-color: #60a5fa;
+			}
+
+			.rich-blockquote::before {
+				content: '"';
+				font-size: 4rem;
+				color: #3b82f6;
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				font-family: serif;
+			}
+
+			.dark-mode .rich-blockquote::before {
+				color: #60a5fa;
+			}
+
+			.rich-divider {
+				margin: 3rem 0;
+				border: none;
+				height: 2px;
+				background: linear-gradient(to right, transparent, #d1d5db, transparent);
+			}
+
+			.dark-mode .rich-divider {
+				background: linear-gradient(to right, transparent, #4b5563, transparent);
+			}
+
+			.rich-link {
+				color: #3b82f6;
+				text-decoration: underline;
+				text-decoration-thickness: 2px;
+				text-underline-offset: 2px;
+				transition: all 0.2s ease;
+			}
+
+			.rich-link:hover {
+				color: #1d4ed8;
+				text-decoration-thickness: 3px;
+			}
+
+			.dark-mode .rich-link {
+				color: #60a5fa;
+			}
+
+			.dark-mode .rich-link:hover {
+				color: #93c5fd;
+			}
+
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
+			}
+
+			@media (max-width: 768px) {
+				.microcms-rich-content {
+					padding: 1rem;
+					font-size: 0.95rem;
+				}
+
+				.rich-paragraph {
+					font-size: 1rem;
+				}
+
+				.rich-blockquote {
+					padding: 1rem;
+					margin: 1.5rem 0;
+				}
+			}
+		</style><style>
+		.microcms-rich-content {
+			font-family: 'Comic Sans MS', cursive, sans-serif !important;
+			background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+			border-radius: 15px;
+		}
+		.rich-paragraph {
+			color: #2c3e50 !important;
+			font-size: 1.2rem !important;
+		}
+	</style></div>
+    
+    <h1>画像を含むコンテンツ（ライトモード）</h1>
+    <div class="microcms-rich-content "><p class="rich-paragraph">これは画像を含むコンテンツです。</p><img class="rich-image" src="https://via.placeholder.com/800x400/3b82f6/ffffff?text=Sample+Image+1" alt="サンプル画像1" title="美しい風景写真"><p class="rich-paragraph">単体画像の後に段落が続きます。</p><figure class="rich-figure"><img class="rich-image" src="https://via.placeholder.com/600x300/10b981/ffffff?text=Figure+Image" alt="フィギュア内の画像" width="600" height="300"><figcaption class="rich-figcaption">これはfigureタグで囲まれた画像とキャプションです。</figcaption></figure><p class="rich-paragraph">複数の画像を含むコンテンツの例：</p><img class="rich-image" src="https://via.placeholder.com/400x200/ef4444/ffffff?text=Small+Image" alt="小さな画像"><blockquote class="rich-blockquote">
+    <p>画像の間に引用を入れることもできます。</p>
+</blockquote><img class="rich-image" src="https://via.placeholder.com/700x350/8b5cf6/ffffff?text=Another+Image" alt="もう一つの画像"><style>
+			.microcms-rich-content {
+				max-width: 800px;
+				margin: 0 auto;
+				line-height: 1.7;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+				color: #333;
+				background-color: #fff;
+				padding: 2rem;
+			}
+
+			.microcms-rich-content.dark-mode {
+				color: #e4e4e7;
+				background-color: #1a1a1a;
+			}
+
+			.rich-paragraph {
+				margin-bottom: 1.5rem;
+				font-size: 1.1rem;
+				color: inherit;
+			}
+
+			.rich-blockquote {
+				margin: 2rem 0;
+				padding: 1.5rem 2rem;
+				border-left: 4px solid #3b82f6;
+				background-color: #f8fafc;
+				border-radius: 0 8px 8px 0;
+				font-style: italic;
+				position: relative;
+			}
+
+			.dark-mode .rich-blockquote {
+				background-color: #2d2d30;
+				border-left-color: #60a5fa;
+			}
+
+			.rich-blockquote::before {
+				content: '"';
+				font-size: 4rem;
+				color: #3b82f6;
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				font-family: serif;
+			}
+
+			.dark-mode .rich-blockquote::before {
+				color: #60a5fa;
+			}
+
+			.rich-divider {
+				margin: 3rem 0;
+				border: none;
+				height: 2px;
+				background: linear-gradient(to right, transparent, #d1d5db, transparent);
+			}
+
+			.dark-mode .rich-divider {
+				background: linear-gradient(to right, transparent, #4b5563, transparent);
+			}
+
+			.rich-link {
+				color: #3b82f6;
+				text-decoration: underline;
+				text-decoration-thickness: 2px;
+				text-underline-offset: 2px;
+				transition: all 0.2s ease;
+			}
+
+			.rich-link:hover {
+				color: #1d4ed8;
+				text-decoration-thickness: 3px;
+			}
+
+			.dark-mode .rich-link {
+				color: #60a5fa;
+			}
+
+			.dark-mode .rich-link:hover {
+				color: #93c5fd;
+			}
+
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
+			}
+
+			@media (max-width: 768px) {
+				.microcms-rich-content {
+					padding: 1rem;
+					font-size: 0.95rem;
+				}
+
+				.rich-paragraph {
+					font-size: 1rem;
+				}
+
+				.rich-blockquote {
+					padding: 1rem;
+					margin: 1.5rem 0;
+				}
+			}
+		</style></div>
+    
+    <h1>画像を含むコンテンツ（ダークモード）</h1>
+    <div class="microcms-rich-content dark-mode"><p class="rich-paragraph">これは画像を含むコンテンツです。</p><img class="rich-image" src="https://via.placeholder.com/800x400/3b82f6/ffffff?text=Sample+Image+1" alt="サンプル画像1" title="美しい風景写真"><p class="rich-paragraph">単体画像の後に段落が続きます。</p><figure class="rich-figure"><img class="rich-image" src="https://via.placeholder.com/600x300/10b981/ffffff?text=Figure+Image" alt="フィギュア内の画像" width="600" height="300"><figcaption class="rich-figcaption">これはfigureタグで囲まれた画像とキャプションです。</figcaption></figure><p class="rich-paragraph">複数の画像を含むコンテンツの例：</p><img class="rich-image" src="https://via.placeholder.com/400x200/ef4444/ffffff?text=Small+Image" alt="小さな画像"><blockquote class="rich-blockquote">
+    <p>画像の間に引用を入れることもできます。</p>
+</blockquote><img class="rich-image" src="https://via.placeholder.com/700x350/8b5cf6/ffffff?text=Another+Image" alt="もう一つの画像"><style>
+			.microcms-rich-content {
+				max-width: 800px;
+				margin: 0 auto;
+				line-height: 1.7;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+				color: #333;
+				background-color: #fff;
+				padding: 2rem;
+			}
+
+			.microcms-rich-content.dark-mode {
+				color: #e4e4e7;
+				background-color: #1a1a1a;
+			}
+
+			.rich-paragraph {
+				margin-bottom: 1.5rem;
+				font-size: 1.1rem;
+				color: inherit;
+			}
+
+			.rich-blockquote {
+				margin: 2rem 0;
+				padding: 1.5rem 2rem;
+				border-left: 4px solid #3b82f6;
+				background-color: #f8fafc;
+				border-radius: 0 8px 8px 0;
+				font-style: italic;
+				position: relative;
+			}
+
+			.dark-mode .rich-blockquote {
+				background-color: #2d2d30;
+				border-left-color: #60a5fa;
+			}
+
+			.rich-blockquote::before {
+				content: '"';
+				font-size: 4rem;
+				color: #3b82f6;
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				font-family: serif;
+			}
+
+			.dark-mode .rich-blockquote::before {
+				color: #60a5fa;
+			}
+
+			.rich-divider {
+				margin: 3rem 0;
+				border: none;
+				height: 2px;
+				background: linear-gradient(to right, transparent, #d1d5db, transparent);
+			}
+
+			.dark-mode .rich-divider {
+				background: linear-gradient(to right, transparent, #4b5563, transparent);
+			}
+
+			.rich-link {
+				color: #3b82f6;
+				text-decoration: underline;
+				text-decoration-thickness: 2px;
+				text-underline-offset: 2px;
+				transition: all 0.2s ease;
+			}
+
+			.rich-link:hover {
+				color: #1d4ed8;
+				text-decoration-thickness: 3px;
+			}
+
+			.dark-mode .rich-link {
+				color: #60a5fa;
+			}
+
+			.dark-mode .rich-link:hover {
+				color: #93c5fd;
+			}
+
+			.rich-image {
+				max-width: 100%;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				display: block;
+				margin: 1.5rem auto;
+			}
+
+			.rich-image:hover {
+				transform: scale(1.02);
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			}
+
+			.dark-mode .rich-image {
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+			}
+
+			.dark-mode .rich-image:hover {
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+			}
+
+			.rich-figure {
+				margin: 2rem 0;
+				text-align: center;
+			}
+
+			.rich-figcaption {
+				margin-top: 0.75rem;
+				font-size: 0.9rem;
+				color: #6b7280;
+				font-style: italic;
+				line-height: 1.5;
+			}
+
+			.dark-mode .rich-figcaption {
+				color: #9ca3af;
 			}
 
 			@media (max-width: 768px) {
